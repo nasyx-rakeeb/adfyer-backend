@@ -16,6 +16,11 @@ connectDB()
 
 const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+// Root 
+app.get("/api", (req, res) => {
+    return res.status(200).json({message: "API is up and running..."})
+})
+
 // Register
 app.post("/api/user/register", async (req, res) => {
   const { email, password, confirmPassword } = req.body;
