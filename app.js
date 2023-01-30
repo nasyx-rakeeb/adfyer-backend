@@ -102,7 +102,7 @@ app.post("/api/user/signin", async (req, res) => {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    res.json({
+    res.status(200).json({
       user: {
         id: user.id,
         email: user.email
