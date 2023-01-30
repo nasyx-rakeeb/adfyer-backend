@@ -27,7 +27,7 @@ app.post("/api/user/register", async (req, res) => {
 
   // Validate email
   if (!email) {
-    return res.status(400).json({ msg: "Please enter an email" });
+    return res.status(400).json({ msg: "Please enter your email" });
   }
   if (!emailRegex.test(email)) {
     return res.status(400).json({ msg: "Please enter a valid email" });
@@ -38,18 +38,18 @@ app.post("/api/user/register", async (req, res) => {
     return res.status(400).json({ msg: "Please enter a password" });
   }
   if (password.length < 6) {
-    return res.status(400).json({ msg: "Password must be at least 6 characters long" });
+    return res.status(400).json({ msg: "Password must be 6 characters long" });
   }
   if (!/\d/.test(password)) {
-    return res.status(400).json({ msg: "Password must contain at least one number" });
+    return res.status(400).json({ msg: "Password must contain one number" });
   }
   if (!/[a-zA-Z]/.test(password)) {
-    return res.status(400).json({ msg: "Password must contain at least one letter" });
+    return res.status(400).json({ msg: "Password must contain one letter" });
   }
 
   // Validate confirmPassword
   if (!confirmPassword) {
-    return res.status(400).json({ msg: "Please confirm your password" });
+    return res.status(400).json({ msg: "Please retype your password" });
   }
   if (confirmPassword !== password) {
     return res.status(400).json({ msg: "Passwords do not match" });
@@ -82,18 +82,18 @@ app.post("/api/user/signin", async (req, res) => {
 
     // Check if email and password are provided
     if (!email || !password) {
-      return res.status(400).json({ msg: "Please enter all fields" });
+      return res.status(400).json({ msg: "All fields are required" });
     }
 
     // Check if email is valid
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ msg: "Invalid email" });
+      return res.status(400).json({ msg: "Invalid email entered" });
     }
 
     // Check if user exists in the database
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ msg: "User does not exist" });
+      return res.status(400).json({ msg: "Account does not exist" });
     }
 
     // Check if password matches
@@ -119,15 +119,15 @@ app.post('/api/user/forgot-password', async (req, res) => {
   const email = req.body.email;
   // Validate email using regex
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ msg: 'Invalid email' });
+    return res.status(400).json({ msg: 'Invalid email entered' });
   }
   if (!email) {
-      return res.status(400).json({msg: "Please provide email address"})
+      return res.status(400).json({msg: "Please enter your email"})
   }
   // Check if user exists in db
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(400).json({ msg: 'User does not exist' });
+    return res.status(400).json({ msg: 'Account does not exist' });
   }
   // Generate reset token
   const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -149,29 +149,29 @@ app.post('/api/user/update-password', async (req, res) => {
       return res.status(400).json({ msg: 'Please provide a reset token' });
   }
   if (!newPassword) {
-      return res.status(400).json({ msg: 'Please provide new password' });
+      return res.status(400).json({ msg: 'Please enter new password' });
   }
   if (!confirmNewPassword) {
-      return res.status(400).json({ msg: 'Please provide confirm new password' });
+      return res.status(400).json({ msg: 'Please retype new password' });
   }
   if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({msg: "New password and confirm new passwords do not match"})
+      return res.status(400).json({msg: "Passwords do not match"})
   }
    // Validate new password
   if (newPassword.length < 6) {
-    return res.status(400).json({ msg: 'Password must be at least 6 characters' });
+    return res.status(400).json({ msg: 'Password must be 6 characters long' });
   }
   if (!/\d/.test(newPassword)) {
-    return res.status(400).json({ msg: "Password must contain at least one number" });
+    return res.status(400).json({ msg: "Password must contain one number" });
   }
   if (!/[a-zA-Z]/.test(newPassword)) {
-    return res.status(400).json({ msg: "Password must contain at least one letter" });
+    return res.status(400).json({ msg: "Password must contain one letter" });
   }
   try {
   // Check if reset token exists
   const user = await User.findOne({ resetToken });
   if (!user) {
-    return res.status(400).json({ msg: 'Invalid reset token' });
+    return res.status(400).json({ msg: 'Invalid reset token provided' });
   }
   // Check if reset token has expired
   if (user.resetTokenExpiry < Date.now()) {
