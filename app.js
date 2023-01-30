@@ -18,7 +18,7 @@ const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+")
 
 // Root 
 app.get("/api", (req, res) => {
-    return res.status(200).json({message: "API is up and running..."})
+    return res.status(200).json({msg: "API is up and running..."})
 })
 
 // Register
@@ -119,15 +119,15 @@ app.post('/api/user/forgot-password', async (req, res) => {
   const email = req.body.email;
   // Validate email using regex
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: 'Invalid email' });
+    return res.status(400).json({ msg: 'Invalid email' });
   }
   if (!email) {
-      return res.status(400).json({message: "Please provide email address"})
+      return res.status(400).json({msg: "Please provide email address"})
   }
   // Check if user exists in db
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(400).json({ message: 'User does not exist' });
+    return res.status(400).json({ msg: 'User does not exist' });
   }
   // Generate reset token
   const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -137,7 +137,7 @@ app.post('/api/user/forgot-password', async (req, res) => {
   await user.save();
   // Send reset token to user's email
   sendEmail(email, `Password Reset`, `To reset your Adfyer account password, please use the following reset token: ${resetToken}. If you did not take this action you can safely disregard this email.`);
-  return res.status(200).json({ message: 'Reset token sent' });
+  return res.status(200).json({ msg: 'Reset token sent' });
 });
 
 // Route for user to enter reset token and new password
@@ -146,20 +146,20 @@ app.post('/api/user/update-password', async (req, res) => {
   const newPassword = req.body.newPassword;
   const confirmNewPassword = req.body.confirmNewPassword;
   if (!resetToken) {
-      return res.status(400).json({ message: 'Please provide a reset token' });
+      return res.status(400).json({ msg: 'Please provide a reset token' });
   }
   if (!newPassword) {
-      return res.status(400).json({ message: 'Please provide new password' });
+      return res.status(400).json({ msg: 'Please provide new password' });
   }
   if (!confirmNewPassword) {
-      return res.status(400).json({ message: 'Please provide confirm new password' });
+      return res.status(400).json({ msg: 'Please provide confirm new password' });
   }
   if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({message: "New password and confirm new passwords do not match"})
+      return res.status(400).json({msg: "New password and confirm new passwords do not match"})
   }
    // Validate new password
   if (newPassword.length < 6) {
-    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    return res.status(400).json({ msg: 'Password must be at least 6 characters' });
   }
   if (!/\d/.test(newPassword)) {
     return res.status(400).json({ msg: "Password must contain at least one number" });
@@ -171,11 +171,11 @@ app.post('/api/user/update-password', async (req, res) => {
   // Check if reset token exists
   const user = await User.findOne({ resetToken });
   if (!user) {
-    return res.status(400).json({ message: 'Invalid reset token' });
+    return res.status(400).json({ msg: 'Invalid reset token' });
   }
   // Check if reset token has expired
   if (user.resetTokenExpiry < Date.now()) {
-    return res.status(400).json({ message: 'Reset token has expired' });
+    return res.status(400).json({ msg: 'Reset token has expired' });
   }
   // Hash new password
   const salt = await bcrypt.genSalt(10);
@@ -185,10 +185,10 @@ user.password = hashedPassword;
 user.resetToken = undefined;
 user.resetTokenExpiry = undefined;
 await user.save();
-return res.status(200).json({ message: 'Password updated successfully' });
+return res.status(200).json({ msg: 'Password updated successfully' });
 } catch (error) {
     console.log(error)
-    res.status(500).json({message: "Server error"})
+    res.status(500).json({msg: "Server error"})
 }
 });
 
