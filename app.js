@@ -6,6 +6,8 @@ const connectDB = require('./db.js');
 const User = require('./models/User');
 const bcrypt = require("bcryptjs")
 const sendEmail = require("./sendEmail.js")
+const generateToken = require("./generateToken.js")
+const verifyToken = require("./verifyToken.js")
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -17,7 +19,7 @@ connectDB()
 const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 // Root 
-app.get("/api", (req, res) => {
+app.get("/api", verifyToken, (req, res) => {
     return res.status(200).json({msg: "API is up and running..."})
 })
 
@@ -68,7 +70,8 @@ app.post("/api/user/register", async (req, res) => {
     // Save user to database
     user = new User({ email, password: hashedPassword });
     await user.save();
-    return res.status(200).json({ msg: "User created", data: { id: user.id, email: user.email } });
+    const token = generateToken(user.id, user.email)
+    return res.status(200).json({ msg: "User created", data: { id: user.id, email: user.email }, token: token });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
@@ -102,12 +105,8 @@ app.post("/api/user/signin", async (req, res) => {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    res.status(200).json({
-      user: {
-        id: user.id,
-        email: user.email
-      }
-    });
+    const token = generateToken(user.id, user.email)
+    return res.status(200).json({ msg: "Successfull", data: { id: user.id, email: user.email }, token: token });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Server error");
@@ -185,7 +184,8 @@ user.password = hashedPassword;
 user.resetToken = undefined;
 user.resetTokenExpiry = undefined;
 await user.save();
-return res.status(200).json({ msg: 'Password updated successfully' });
+const token = generateToken(user.id, user.email)
+return res.status(200).json({ msg: "Password updated", data: { id: user.id, email: user.email }, token: token });
 } catch (error) {
     console.log(error)
     res.status(500).json({msg: "Server error"})
